@@ -1,0 +1,163 @@
+AWS PRACTICAL: CREATE VPC WITH PUBLIC AND PRIVATE SUBNETS
+
+STEP 1: CREATE A NEW VPC
+
+1. Login to AWS Management Console.
+2. Search for VPC and open VPC Dashboard.
+3. Click Create VPC.
+4. Select VPC and more.
+5. Enter the following details:
+
+Name tag: my-ditiss-lab
+IPv4 CIDR block: 172.20.0.0/16
+Number of Availability Zones: 1
+Number of Public Subnets: 1
+Number of Private Subnets: 1
+Customize Subnet CIDR Blocks: Enable
+Public Subnet CIDR Block: 172.20.0.0/17
+Private Subnet CIDR Block: 172.20.128.0/17
+NAT Gateway: Zonal -> In 1 AZ
+VPC Endpoints: None
+
+6. Click Create VPC.
+
+STEP 2: LAUNCH PUBLIC EC2 INSTANCE
+
+1. Open EC2 Dashboard.
+2. Click Launch Instance.
+3. Enter the following details:
+
+Name: My-EC2-public-instance
+AMI: Amazon Linux
+Key Pair: Reuse or Generate
+
+4. Under Network Settings, click Edit.
+5. Select the following:
+
+VPC: my-ditiss-lab
+Subnet: Select the Public Subnet
+Auto-assign Public IP: Enable
+
+6. Click Launch Instance.
+7. Wait until the instance state becomes Running.
+
+STEP 3: LAUNCH PRIVATE EC2 INSTANCE
+
+1. Click Launch Instance again.
+2. Enter the following details:
+
+Name: My-EC2-private-instance
+AMI: Amazon Linux
+Key Pair: Reuse the same key pair.
+
+3. Under Network Settings, click Edit.
+4. Select the following:
+
+VPC: my-ditiss-lab
+Subnet: Select the Private Subnet
+Auto-assign Public IP: Disable
+Open Port: 80
+
+5. Click Launch Instance.
+6. Wait until the instance state becomes Running.
+
+STEP 4: CONNECT TO THE PUBLIC INSTANCE
+
+1. Open PuTTYgen.
+2. Click Load and select the .ppk file.
+3. Go to Conversions -> Export OpenSSH key.
+4. Save the key as a .pem file in the same directory.
+
+5. Transfer the .pem file to your Linux VM.
+
+6. Open the Linux terminal and navigate to the directory containing the .pem file.
+
+7. Change file permissions:
+
+chmod 400 key.pem
+
+8. Connect to the public EC2 instance:
+
+ssh -i key.pem ec2-user@PUBLIC_IP
+
+Replace PUBLIC_IP with the public IP of the public instance.
+
+STEP 5: COPY PEM FILE FROM LOCAL MACHINE TO PUBLIC EC2 INSTANCE
+
+1. Open a new terminal on your local Linux machine.
+
+2. Execute the following SCP command:
+
+scp -i key.pem key.pem ec2-user@PUBLIC_IP:~/
+
+Replace PUBLIC_IP with the public IP of the public instance.
+
+3. The key.pem file will be copied to the home directory of the public EC2 instance.
+
+4. Login to the public instance:
+
+ssh -i key.pem ec2-user@PUBLIC_IP
+
+5. Set correct permissions on the public instance:
+
+chmod 400 key.pem
+
+STEP 6: CONNECT FROM PUBLIC TO PRIVATE INSTANCE
+
+1. Open WinSCP.
+2. Go to Advanced -> SSH -> Authentication.
+3. Select the .ppk file under Private key file.
+4. Connect to the public instance.
+5. Transfer the .pem file from your local Windows machine to the public EC2 instance.
+
+6. Open the public instance terminal.
+
+7. Set correct permissions:
+
+chmod 400 key.pem
+
+8. Connect to the private EC2 instance:
+
+ssh -i key.pem ec2-user@PRIVATE_IP
+
+Replace PRIVATE_IP with the private IP of the private instance.
+
+STEP 7: INSTALL HTTPD ON THE PRIVATE INSTANCE
+
+Execute the following commands on the private EC2 instance.
+
+1. Install Apache HTTP Server:
+
+sudo yum install httpd -y
+
+2. Start Apache service:
+
+sudo service httpd start
+
+3. Enable Apache at system startup:
+
+sudo chkconfig httpd on
+
+4. Test Apache locally:
+
+curl localhost
+
+STEP 8: TEST CONNECTIVITY FROM PUBLIC INSTANCE
+
+1. Exit from the private instance:
+
+exit
+
+2. You will return to the public instance terminal.
+
+3. Execute the following command:
+
+curl PRIVATE_IP
+
+Replace PRIVATE_IP with the private IP of the private instance.
+
+4. You should see the Apache home page HTML output.
+
+RESULT:
+
+Successfully created a VPC with public and private subnets, launched two EC2 instances, transferred the SSH key using SCP, installed Apache HTTP Server on the private instance, and tested connectivity from the public instance using curl.
