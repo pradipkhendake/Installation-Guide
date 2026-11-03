@@ -1,0 +1,147 @@
+Installing Jenkins on Ubuntu - 
+
+sudo apt update
+sudo apt install fontconfig openjdk-21-jre -y
+java -version
+
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+https://pkg.jenkins.io/debian-stable binary/ | \
+sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt update
+
+sudo apt install jenkins -y
+
+sudo systemctl start jenkins
+
+sudo systemctl enable jenkins
+
+sudo systemctl status jenkins
+
+Open Jenkins in browser - http://localhost:8080
+
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword 
+
+Copy the password and paste it into the Jenkins browser page.
+
+Step 13. Complete Jenkins setup
+Click Install suggested plugins.
+Wait for plugin installation.
+Create your administrator username and password.
+Configure Jenkins URL.
+Click Start using Jenkins.
+
+
+
+
+3. Create your first Freestyle project
+Open Jenkins dashboard.
+Click New Item.
+Enter project name: MyFirstJob.
+Select Freestyle project.
+Click OK.
+Go to Build Steps.
+Select Execute shell (Linux).
+Enter:
+echo "Hello Jenkins"
+echo "Welcome to DevOps Lab"
+whoami
+pwd
+date
+
+Click Save.
+Click Build Now.
+Open Build History → Build Number → Console Output.
+Expected result
+Hello Jenkins
+Welcome to DevOps Lab
+jenkins
+/var/lib/jenkins/workspace/MyFirstJob
+4. GitHub integration with Jenkins
+Steps:
+Create a repository on GitHub.
+Add your source code and push it.
+Open Jenkins.
+Click New Item → Freestyle project.
+Go to Source Code Management.
+Select Git.
+Enter your repository URL.
+Add credentials if the repository is private.
+Specify branch: */main.
+Under Build Steps, select Execute shell.
+Example:
+echo "Code downloaded from GitHub"
+ls -la
+11. Save → Build Now → Console Output.
+For a public repository, credentials are generally not required.
+5. Jenkins Pipeline project
+Steps:
+Click New Item.
+Enter name: MyPipeline.
+Select Pipeline.
+Click OK.
+Scroll down to Pipeline.
+Select Pipeline script.
+Paste this script:
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building Application'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Testing Application'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying Application'
+            }
+        }
+    }
+}
+
+Click Save → Build Now.
+Open Console Output or Stage View.
+6. Pipeline with shell commands
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking source code'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'echo Building application'
+                sh 'pwd'
+                sh 'ls -la'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'echo Testing application'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'echo Deploying application'
+            }
+        }
+    }
+}
+
